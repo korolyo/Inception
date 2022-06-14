@@ -1,9 +1,26 @@
-all:	up
+up: docker-compose up
 
-up:		docker-compose up
+down: docker-compose down
 
-down:	docker-compose down
+mkdir:
 
-re:
+build:
 
-clean:	rm
+run:
+
+stop:
+
+ps:
+
+fclean: rm -rf chtoto
+
+
+
+
+
+
+
+
+
+
+
