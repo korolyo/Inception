@@ -5,7 +5,7 @@ services:
     ports:
       - "8000:80"
     volumes:
-      - ./services:/etc/nginx/templates
+      - ./requirements:/etc/nginx/templates
     networks:
 
     environment:
