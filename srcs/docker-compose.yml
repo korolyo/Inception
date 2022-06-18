@@ -1,36 +1,54 @@
-version: '3.9'
-
 services:
   nginx:
     container_name: nginx
-    build: ./requirements/nginx
+    build: ./requirements/nginx/
     image: nginx:alpine
+    depends_on:
+      mariadb:
+        condition: service_healthy
+      wordpress:
+        condition: service_healthy
     ports:
-      - "8000:80"
+      - "80:443"
+    env_file: .env
     volumes:
-      - ./requirements:/etc/nginx/templates
+      - db-data:/etc/nginx/templates
+      - /home/acollin/data/
     networks:
-
+      - wpnet
     environment:
       - NGINX_HOST=foobar.com
       - NGINX_PORT=80
   mariadb:
     container_name: mariadb
-    build: ./requirements/mariadb
+    build: ./requirements/mariadb/
+    ports:
+      - "3306"
+    env_file: .env
+    volumes:
+      - db-data:
     networks:
-
-
-
+      - wpnet
   wordpress:
     container_name: wordpress
-    build: ./requirements/wordpress
+    build: ./requirements/wordpress/
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    env_file: .env
+    ports:
+      - "9000"
     networks:
-
+      - wpnet
+    volumes:
+      - db-data:
 
 ##################################################
 volumes:
+  db-data:
 
-
+#################################################
 networks:
+  wpnet: {}
 
 
