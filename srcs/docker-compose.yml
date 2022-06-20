@@ -1,54 +1,63 @@
+version: "3.8"
+
 services:
   nginx:
     container_name: nginx
     build: ./requirements/nginx/
-    image: nginx:alpine
+    hostname: localhost
+    restart: unless-stopped
     depends_on:
-      mariadb:
-        condition: service_healthy
-      wordpress:
-        condition: service_healthy
+      - mariadb
+      - wordpress
     ports:
-      - "80:443"
+      - "443:443"
     env_file: .env
     volumes:
-      - db-data:/etc/nginx/templates
-      - /home/acollin/data/
+      - wp:/etc/nginx/templates
     networks:
       - wpnet
-    environment:
-      - NGINX_HOST=foobar.com
-      - NGINX_PORT=80
   mariadb:
     container_name: mariadb
     build: ./requirements/mariadb/
     ports:
       - "3306"
     env_file: .env
+    restart: always
     volumes:
-      - db-data:
+      - db-data:/var/lib/mysql
     networks:
       - wpnet
   wordpress:
     container_name: wordpress
     build: ./requirements/wordpress/
     depends_on:
-      mariadb:
-        condition: service_healthy
+      - mariadb
     env_file: .env
     ports:
       - "9000"
     networks:
       - wpnet
+    restart: always
     volumes:
-      - db-data:
+      - wp:/var/www/html
 
 ##################################################
 volumes:
   db-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/acollin/data/db-data
+
+  wp:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/acollin/data/wp
 
 #################################################
 networks:
-  wpnet: {}
-
-
+  wpnet:
+    driver: bridge

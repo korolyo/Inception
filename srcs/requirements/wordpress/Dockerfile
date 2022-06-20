@@ -1,5 +1,7 @@
 FROM alpine:3.14
 
+WORKDIR /usr/src/wordpress
+
 COPY ./www.conf /conf.d
 
 RUN apk update && apk upgrade\

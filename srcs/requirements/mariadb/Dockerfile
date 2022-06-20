@@ -6,7 +6,4 @@ COPY ./conf/50-server.cnf /
 
 EXPOSE 3306
 
-HEALTHCHECK
-
 ENTRYPOINT ["mysqld"]
-#ENTRYPOINT ["tail", "-f"]
