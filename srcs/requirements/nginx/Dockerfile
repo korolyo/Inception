@@ -1,11 +1,15 @@
 FROM alpine:3.14
 
-COPY conf/nginx.conf /
+RUN apk upgrade --update-cache --available && \
+    apk add openssl && \
+    apk add nginx && \
+    rm -rf /var/cache/apk/*
 
-RUN apk update; apk add nginx
+
+COPY conf/nginx.conf /etc/nginx/conf.d/
+COPY tools/start.sh /var/www
 
 EXPOSE 443
 
-ENTRYPOINT ["nginx", "-g", "daemon off;"]
-#ENTRYPOINT ["tail", "-f"]
+CMD bash /var/www/start.sh
 

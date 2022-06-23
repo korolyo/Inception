@@ -9,7 +9,4 @@ RUN apk update && apk upgrade\
 
 EXPOSE 9000
 
-HEALTHCHECK
-
 ENTRYPOINT ["php-fpm7"]
-#ENTRYPOINT ["tail", "-f"]
