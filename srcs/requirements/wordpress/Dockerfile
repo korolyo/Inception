@@ -5,7 +5,7 @@ WORKDIR /usr/src/wordpress
 COPY ./www.conf /conf.d
 
 RUN apk update && apk upgrade\
-     && apk add php7 php7-fpm mysql mysql-client wget
+     && apk add php7 php7-fpm mariadb-client wget
 
 EXPOSE 9000
 
