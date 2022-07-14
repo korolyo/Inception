@@ -1,16 +1,63 @@
 FROM alpine:3.14
 
-WORKDIR /usr/src/wordpress
+RUN         apk update && apk upgrade && \
+            apk add --no-cache bash tar vim mariadb-client wget curl \
+            php7				\
+    		php7-fpm			\
+    		php7-bcmath			\
+    		php7-bz2 			\
+    		php7-calendar		\
+    		php7-ctype			\
+    		php7-curl			\
+    		php7-dom			\
+    		php7-exif			\
+    		php7-fileinfo		\
+    		php7-gd				\
+    		php7-gmagick		\
+    		php7-gmp			\
+    		php7-iconv			\
+    		php7-imap			\
+    		php7-intl			\
+    		php7-json			\
+    		php7-mbstring		\
+    		php7-mcrypt			\
+    		php7-memcache		\
+    		php7-mysqli			\
+    		php7-mysqlnd		\
+    		php7-openssl		\
+    		php7-pcntl			\
+    		php7-pdo			\
+    		php7-pdo_mysql		\
+    		php7-pdo_pgsql		\
+    		php7-pdo_sqlite 	\
+    		php7-pgsql			\
+    		php7-phar			\
+    		php7-posix			\
+    		php7-session		\
+    		php7-shmop			\
+    		php7-simplexml		\
+    		php7-soap			\
+    		php7-sockets		\
+    		php7-sodium			\
+    		php7-sqlite3		\
+    		php7-sysvsem		\
+    		php7-sysvshm		\
+    		php7-tokenizer		\
+    		php7-xml			\
+    		php7-xmlreader		\
+    		php7-xmlwriter		\
+    		php7-xsl			\
+    		php7-zip			\
+    		php7-zlib && \
+            rm -rf /var/cache/apk/*
 
-RUN apk update && apk upgrade \
-     && apk add --no-cache bash vim php7-openssl php7 php7-fpm php-mysqli mariadb-client wget curl && \
-    rm -rf /var/cache/apk/*
+ADD tools/php-fpm.conf /etc/php/7.4/fpm/pool.d
+ADD tools/wp-config.php /
+ADD tools/start.sh /
+ADD tools/index.html /
 
-EXPOSE 9000
+RUN chmod +x /start.sh && \
+    curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
+    chmod +x wp-cli.phar && mv wp-cli.phar /usr/bin/wp
 
-COPY ./www.conf /etc/php/7.4/fpm/pool.d
-
-COPY ./tools/start.sh ./var/www/wordpress
-
-
-ENTRYPOINT ["php-fpm7"]
+ENTRYPOINT ["sh", "/start.sh"]

@@ -29,7 +29,7 @@ define('DB_USER', 'acollin');
 define('DB_PASSWORD', '123');
  
 /** MySQL hostname */
-define('DB_HOST', 'db-data:3306');
+define('DB_HOST', 'acollin.42.fr');
  
 /** Database Charset to use in creating database tables. */
 define('DB_CHARSET', 'utf8');
@@ -63,7 +63,7 @@ define('NONCE_SALT',       'MS<ZiJR!yo+O=mWxaxx+kSH/$EOC!7V~EyV~4^y@^|-TMGp^[D,m
  * You can have multiple installations in one database if you give each
  * a unique prefix. Only numbers, letters, and underscores please!
  */
-$table_prefix  = 'wp_';
+// $table_prefix  = 'wp_';
  
 /**
  * For developers: WordPress debugging mode.

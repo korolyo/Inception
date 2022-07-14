@@ -1,32 +1,19 @@
 version: "3.8"
 
 services:
-  nginx:
-    container_name: nginx
-    build: ./requirements/nginx/
-    hostname: localhost
-    restart: always
-    depends_on:
-      - wordpress
-    ports:
-      - "443:443"
-    env_file: .env
-    volumes:
-      - wp:/etc/nginx/templates
-    networks:
-      - wpnet
   mariadb:
     container_name: mariadb
     build: ./requirements/mariadb/
-    ports:
-      - "3306"
-    expose:
-      - 3306
-    env_file: .env
-    command: '--default-authentication-plugin=mysql_native_password'
-    restart: always
     volumes:
       - db-data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    environment:
+      WP_DB_NAME:     ${WP_DB_NAME}
+      WP_DB_USER:     ${WP_DB_USER}
+      WP_DB_PWD:      ${WP_DB_PWD}
+      WP_DB_ROOT_PWD: ${WP_DB_ROOT_PWD}
+    restart: always
     networks:
       - wpnet
   wordpress:
@@ -34,14 +21,33 @@ services:
     build: ./requirements/wordpress/
     depends_on:
       - mariadb
-    env_file: .env
+    environment:
+      DOMAIN_NAME:    ${DOMAIN_NAME}
+      WP_USR_NAME:    ${WP_USR_NAME}
+      WP_USR_PWD:     ${WP_USR_PWD}
+      WP_USR_EMAIL:   ${WP_USR_EMAIL}
+      WP_ADMIN_NAME:  ${WP_ADMIN_NAME}
+      WP_ADMIN_PWD:   ${WP_ADMIN_PWD}
+      WP_ADMIN_EMAIL: ${WP_ADMIN_EMAIL}
     ports:
-      - "9000"
+      - "9000:9000"
     networks:
       - wpnet
     restart: always
     volumes:
       - wp:/var/www/html
+  nginx:
+    container_name: nginx
+    build: ./requirements/nginx/
+    restart: always
+    depends_on:
+      - wordpress
+    ports:
+      - "443:443"
+    volumes:
+      - wp:/etc/nginx/templates
+    networks:
+      - wpnet
 
 ##################################################
 volumes:

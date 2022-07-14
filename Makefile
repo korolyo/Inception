@@ -4,7 +4,7 @@ all: 	up
 up:
 		@mkdir -p /home/acollin/data/wp
 		@mkdir -p /home/acollin/data/db-data
-		@docker-compose -f srcs/docker-compose.yml up -d
+		@docker-compose -f srcs/docker-compose.yml up --build
 
 down:
 		@docker-compose -f srcs/docker-compose.yml down

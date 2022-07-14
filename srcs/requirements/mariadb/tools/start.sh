@@ -1,49 +1,39 @@
-if [ -d "/run/mysqld" ]; then
-        echo " mysqld already present, skipping creation"
-        chown -R mysql:mysql /run/mysqld
-else
-        echo " mysqld not found, creating...."
-        mkdir -p /run/mysqld
-        chown -R mysql:mysql /run/mysqld
+#!/bin/sh
+
+if [ ! -d "/run/mysqld" ]; then
+	mkdir -p /run/mysqld
+	chown -R mysql:mysql /run/mysqld
 fi
 
-if [ -d /var/lib/mysql/mysql ]; then
-        echo "MySQL data directory already present, skipping creation"
-        chown -R mysql:mysql /var/lib/mysql
-else
-        echo "MySQL data directory not found, creating initial DBs"
+if [ ! -d "/var/lib/mysql/mysql" ]; then
 
-        chown -R mysql:mysql /var/lib/mysql
+	chown -R mysql:mysql /var/lib/mysql
 
-        mysql_install_db --user=mysql --ldata=/var/lib/mysql > /dev/null
+	# init database
+	mysql_install_db --basedir=/usr --datadir=/var/lib/mysql --user=mysql --rpm > /dev/null
 
-        if [ "$MYSQL_ROOT_PASSWORD" = "" ]; then
-            MYSQL_ROOT_PASSWORD='pwdf 15 11'
-            echo "MySQL root Password: $MYSQL_ROOT_PASSWORD"
-        fi
+	tfile=`mktemp`
+	if [ ! -f "$tfile" ]; then
+		return 1
+	fi
 
-        MYSQL_DB_NAME=${MYSQL_DB_NAME:-""}
-        MYSQL_USER=${MYSQL_USER:-""}
-        MYSQL_PASSWORD=${MYSQL_PASSWORD:-""}
-
-        tfile=`mktemp`
-        if [ ! -f "$tfile" ]; then
-	        return 1
-	    fi
-
-	    cat << EOF > $tfile
+	# https://stackoverflow.com/questions/10299148/mysql-error-1045-28000-access-denied-for-user-billlocalhost-using-passw
+	cat << EOF > $tfile
 USE mysql;
-FLUSH PRIVILEGES ;
-GRANT ALL ON *.* TO 'root'@'%' identified by '$MYSQL_ROOT_PASSWORD' WITH GRANT OPTION ;
-GRANT ALL ON *.* TO 'root'@'localhost' identified by '$MYSQL_ROOT_PASSWORD' WITH GRANT OPTION ;
-SET PASSWORD FOR 'root'@'localhost'=PASSWORD('${MYSQL_ROOT_PASSWORD}') ;
-DROP DATABASE IF EXISTS test ;
-FLUSH PRIVILEGES ;
+FLUSH PRIVILEGES;
+DELETE FROM	mysql.user WHERE User='';
+DROP DATABASE test;
+DELETE FROM mysql.db WHERE Db='test';
+DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');
+ALTER USER 'root'@'localhost' IDENTIFIED BY 'WP_DB_ROOT_PWD';
+CREATE DATABASE $WP_DB_NAME CHARACTER SET utf8 COLLATE utf8_general_ci;
+CREATE USER '$WP_DB_USR'@'%' IDENTIFIED by '$WP_DB_PWD';
+GRANT ALL PRIVILEGES ON $WP_DB_NAME.* TO '$WP_DB_USR'@'%';
+FLUSH PRIVILEGES;
 EOF
+	# run init.sql
+	/usr/bin/mysqld --user=mysql --bootstrap < $tfile
+	rm -f $tfile
+fi
 
-		echo "CREATE DATABASE IF NOT EXISTS \`$MYSQL_DB_NAME\` CHARACTER SET $MYSQL_CHARSET COLLATE $MYSQL_COLLATION;" >> $tfile
-		echo "CREATE USER IF NOT EXISTS 'acollin'@'%' IDENTIFIED BY '123';" >> $tfile
-		echo "GRANT ALL ON \`$MYSQL_DB_NAME\`.* to '$MYSQL_USER'@'%' IDENTIFIED BY '$MYSQL_PASSWORD';" >> $tfile
-
-	    /usr/bin/mysqld --user=mysql --bootstrap --verbose=0 --skip-name-resolve --skip-networking=0 < $tfile
-	    rm -f $tfile
+exec /usr/bin/mysqld --user=mysql --console
