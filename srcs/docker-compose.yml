@@ -8,27 +8,16 @@ services:
       - db-data:/var/lib/mysql
     ports:
       - "3306:3306"
-    environment:
-      WP_DB_NAME:     ${WP_DB_NAME}
-      WP_DB_USER:     ${WP_DB_USER}
-      WP_DB_PWD:      ${WP_DB_PWD}
-      WP_DB_ROOT_PWD: ${WP_DB_ROOT_PWD}
+    env_file: .env
     restart: always
     networks:
       - wpnet
   wordpress:
     container_name: wordpress
     build: ./requirements/wordpress/
+    env_file: .env
     depends_on:
       - mariadb
-    environment:
-      DOMAIN_NAME:    ${DOMAIN_NAME}
-      WP_USR_NAME:    ${WP_USR_NAME}
-      WP_USR_PWD:     ${WP_USR_PWD}
-      WP_USR_EMAIL:   ${WP_USR_EMAIL}
-      WP_ADMIN_NAME:  ${WP_ADMIN_NAME}
-      WP_ADMIN_PWD:   ${WP_ADMIN_PWD}
-      WP_ADMIN_EMAIL: ${WP_ADMIN_EMAIL}
     ports:
       - "9000:9000"
     networks:
