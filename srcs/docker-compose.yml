@@ -1,60 +1,59 @@
-version: "3.8"
+version: "3"
 
 services:
   mariadb:
-    container_name: mariadb
     build: ./requirements/mariadb/
-    volumes:
-      - db-data:/var/lib/mysql
+    image: mariadb
+    container_name: mariadb
+#    volumes: [db-data:/var/lib/mysql]
     ports:
       - "3306:3306"
     env_file: .env
     restart: always
-    networks:
-      - wpnet
-  wordpress:
-    container_name: wordpress
-    build: ./requirements/wordpress/
-    env_file: .env
-    depends_on:
-      - mariadb
-    ports:
-      - "9000:9000"
-    networks:
-      - wpnet
-    restart: always
-    volumes:
-      - wp:/var/www/html
-  nginx:
-    container_name: nginx
-    build: ./requirements/nginx/
-    restart: always
-    depends_on:
-      - wordpress
-    ports:
-      - "443:443"
-    volumes:
-      - wp:/etc/nginx/templates
-    networks:
-      - wpnet
-
+#    networks: wpnet
+#  wordpress:
+#    container_name: wordpress
+#    build: ./requirements/wordpress/
+#    env_file: .env
+#    depends_on:
+#      - mariadb
+#    ports:
+#      - "9000:9000"
+#    networks:
+#      - wpnet
+#    restart: always
+#    volumes:
+#      - wp:/var/www/html
+#  nginx:
+#    container_name: nginx
+#    build: ./requirements/nginx/
+#    restart: always
+#    depends_on:
+#      - wordpress
+#    ports:
+#      - "443:443"
+#    volumes:
+#      - wp:/etc/nginx/templates
+#    networks:
+#      - wpnet
+#
+###################################################
+#volumes:
+#  db-data:
+#    driver: local
+#    driver_opts:
+#      type: none
+#      o: bind
+#      device: /home/acollin/data/db-data
+#
+#  wp:
+#    driver: local
+#    driver_opts:
+#      type: none
+#      o: bind
+#      device: /home/acollin/data/wp
+#
 ##################################################
-volumes:
-  db-data:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: /home/acollin/data/db-data
-
-  wp:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: /home/acollin/data/wp
-
-#################################################
-networks:
-  wpnet:
-    driver: bridge
+#networks:
+#  wpnet:
+#    driver: bridge
