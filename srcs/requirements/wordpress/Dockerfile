@@ -1,7 +1,7 @@
-FROM alpine:3.14
+FROM alpine:3.12
 
 RUN         apk update && apk upgrade && \
-            apk add --no-cache bash tar vim mariadb-client wget curl \
+            apk add --no-cache bash tar vim mariadb-client wget curl openssl\
             php7				\
     		php7-fpm			\
     		php7-bcmath			\
@@ -49,15 +49,22 @@ RUN         apk update && apk upgrade && \
     		php7-xsl			\
     		php7-zip			\
     		php7-zlib && \
-            rm -rf /var/cache/apk/*
+            rm -rf /var/cache/apk/* && \
+            mkdir -p /var/www/data/ && \
+            adduser -D -g user user
 
-ADD tools/php-fpm.conf /etc/php/7.4/fpm/pool.d
+
+ADD tools/www.conf /etc/php7/php-fpm.d/
 ADD tools/wp-config.php /
-ADD tools/start.sh /
 ADD tools/index.html /
 
-RUN chmod +x /start.sh && \
-    curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
-    chmod +x wp-cli.phar && mv wp-cli.phar /usr/bin/wp
+RUN wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+RUN chmod +x wp-cli.phar
+RUN cp wp-cli.phar /usr/bin/wp
+RUN chown -R user:user /var/www
+RUN chown -R user:user /var/log/php7
 
+WORKDIR /var/www/html/wordpress
+
+COPY tools/start.sh /
 ENTRYPOINT ["sh", "/start.sh"]

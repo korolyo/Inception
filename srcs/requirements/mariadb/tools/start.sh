@@ -17,13 +17,22 @@ if [ ! -d "/var/lib/mysql/mysql" ]; then
 		return 1
 	fi
 
+	# https://stackoverflow.com/questions/10299148/mysql-error-1045-28000-access-denied-for-user-billlocalhost-using-passw
 	cat << EOF > $tfile
 USE mysql;
 FLUSH PRIVILEGES;
-CREATE DATABASE $WP_DB_NAME;
-CREATE USER '$WP_DB_USR'@'%' IDENTIFIED by '$WP_DB_PWD';
-GRANT ALL PRIVILEGES ON $WP_DB_NAME.* TO '$WP_DB_USR'@'%';
-ALTER USER 'root'@'localhost' IDENTIFIED BY '$WP_DB_ROOT_PWD';
+
+DELETE FROM	mysql.user WHERE User='';
+DROP DATABASE test;
+DELETE FROM mysql.db WHERE Db='test';
+DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');
+
+ALTER USER 'root'@'localhost' IDENTIFIED BY '$MYSQL_ROOT_PWD';
+
+CREATE DATABASE $MYSQL_DB_NAME CHARACTER SET utf8 COLLATE utf8_general_ci;
+CREATE USER '$MYSQL_DB_USER'@'%' IDENTIFIED by '$MYSQL_DB_PWD';
+GRANT ALL PRIVILEGES ON $MYSQL_DB_NAME.* TO '$MYSQL_DB_USR'@'%' IDENTIFIED by '$MYSQL_DB_PWD';
+
 FLUSH PRIVILEGES;
 EOF
 	# run init.sql
@@ -31,8 +40,4 @@ EOF
 	rm -f $tfile
 fi
 
-# allow remote connections
-sed -i "s|skip-networking|# skip-networking|g" /etc/my.cnf.d/mariadb-server.cnf
-sed -i "s|.*bind-address\s*=.*|bind-address=0.0.0.0|g" /etc/my.cnf.d/mariadb-server.cnf
-
-exec /usr/bin/mysqld --user=mysql --console --skip-name-resolve --skip-networking=0 $@
+exec /usr/bin/mysqld --user=mysql --console

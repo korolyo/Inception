@@ -29,7 +29,7 @@ define('DB_USER', 'acollin');
 define('DB_PASSWORD', '123');
  
 /** MySQL hostname */
-define('DB_HOST', 'acollin.42.fr');
+define('DB_HOST', 'localhost:3306');
  
 /** Database Charset to use in creating database tables. */
 define('DB_CHARSET', 'utf8');
