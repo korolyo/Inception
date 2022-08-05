@@ -15,9 +15,7 @@ ADD tools/index.html /
 RUN chmod 777 /etc/php/7.3/fpm/pool.d/www.conf && \
     wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
     chmod +x wp-cli.phar && \
-    mv wp-cli.phar /usr/local/bin/wp && \
-    chown -R user:user /var/www && \
-    chown -R user:user /var/log/php7
+    mv wp-cli.phar /usr/local/bin/wp 
 
 WORKDIR /var/www/html/wordpress
 
