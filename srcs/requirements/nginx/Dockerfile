@@ -1,10 +1,10 @@
-FROM alpine:3.14
+FROM debian:buster
 
-RUN apk upgrade --update-cache --available && \
-    apk add --no-cache openssl nginx && \
-    rm -rf /var/cache/apk/*
+RUN apt-get update -y && \
+    apt-get install -y openssl nginx && \
+    rm -rf /var/lib/apt/lists/*
 
-ADD conf/nginx.conf /etc/nginx/conf.d/
+ADD conf/nginx.conf /etc/nginx/sites-available/default
 ADD tools/start.sh /var/www/
 
 RUN chmod +x /var/www/start.sh

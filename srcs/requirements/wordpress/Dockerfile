@@ -1,70 +1,25 @@
-FROM alpine:3.12
+FROM debian:buster
 
-RUN         apk update && apk upgrade && \
-            apk add --no-cache bash tar vim mariadb-client wget curl openssl\
-            php7				\
-    		php7-fpm			\
-    		php7-bcmath			\
-    		php7-bz2 			\
-    		php7-calendar		\
-    		php7-ctype			\
-    		php7-curl			\
-    		php7-dom			\
-    		php7-exif			\
-    		php7-fileinfo		\
-    		php7-gd				\
-    		php7-gmagick		\
-    		php7-gmp			\
-    		php7-iconv			\
-    		php7-imap			\
-    		php7-intl			\
-    		php7-json			\
-    		php7-mbstring		\
-    		php7-mcrypt			\
-    		php7-memcache		\
-    		php7-mysqli			\
-    		php7-mysqlnd		\
-    		php7-openssl		\
-    		php7-pcntl			\
-    		php7-pdo			\
-    		php7-pdo_mysql		\
-    		php7-pdo_pgsql		\
-    		php7-pdo_sqlite 	\
-    		php7-pgsql			\
-    		php7-phar			\
-    		php7-posix			\
-    		php7-session		\
-    		php7-shmop			\
-    		php7-simplexml		\
-    		php7-soap			\
-    		php7-sockets		\
-    		php7-sodium			\
-    		php7-sqlite3		\
-    		php7-sysvsem		\
-    		php7-sysvshm		\
-    		php7-tokenizer		\
-    		php7-xml			\
-    		php7-xmlreader		\
-    		php7-xmlwriter		\
-    		php7-xsl			\
-    		php7-zip			\
-    		php7-zlib && \
-            rm -rf /var/cache/apk/* && \
-            mkdir -p /var/www/data/ && \
-            adduser -D -g user user
+RUN         apt-get update -y && \
+            apt-get install -y bash tar vim mariadb-client wget \
+            php7.3 \
+            php-mysql \
+            php-fpm	&& \
+            rm -rf /var/lib/apt/lists/* && \
+            mkdir -p /var/www/data/
 
 
-ADD tools/www.conf /etc/php7/php-fpm.d/
-ADD tools/wp-config.php /
+ADD tools/www.conf /etc/php/7.3/fpm/pool.d/www.conf
 ADD tools/index.html /
 
-RUN wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
-RUN chmod +x wp-cli.phar
-RUN cp wp-cli.phar /usr/bin/wp
-RUN chown -R user:user /var/www
-RUN chown -R user:user /var/log/php7
+RUN chmod 777 /etc/php/7.3/fpm/pool.d/www.conf && \
+    wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
+    chmod +x wp-cli.phar && \
+    mv wp-cli.phar /usr/local/bin/wp && \
+    chown -R user:user /var/www && \
+    chown -R user:user /var/log/php7
 
 WORKDIR /var/www/html/wordpress
 
 COPY tools/start.sh /
-ENTRYPOINT ["sh", "/start.sh"]
+ENTRYPOINT ["bash", "/start.sh"]

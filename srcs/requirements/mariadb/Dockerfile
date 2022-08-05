@@ -1,13 +1,13 @@
-FROM alpine:3.14
+FROM debian:buster
 
-VOLUME [“/sys/fs/cgroup”]
+VOLUME [ “/var/lib/mysql” ]
 
-RUN apk update && apk upgrade && \
-    apk add mariadb mariadb-common mariadb-client openrc sudo
+RUN apt update &&  \
+    apt install sudo mariadb-server -y && rm -rf /var/lib/apt/lists/*; \
+    sed -i 's/^bind-address/#&/' /etc/mysql/mariadb.conf.d/50-server.cnf
 
-COPY conf/my.cnf /etc/
 COPY tools/start.sh /
 
 RUN	chmod +x /start.sh
 
-ENTRYPOINT ["sh", "/start.sh"]
+ENTRYPOINT ["bash", "/start.sh"]

@@ -2,7 +2,7 @@ version: "3"
 
 services:
   mariadb:
-    build: ./requirements/mariadb/
+    build: requirements/mariadb
     image: mariadb
     hostname: localhost
     container_name: mariadb
@@ -10,14 +10,15 @@ services:
     ports:
       - "3306:3306"
     env_file:
-      - ./.env
+      - .env
     restart: always
     networks:
       - wpnet
   wordpress:
     container_name: wordpress
-    build: ./requirements/wordpress/
-    env_file: .env
+    build: requirements/wordpress
+    env_file:
+      - .env
     depends_on:
       - mariadb
     ports:
@@ -29,8 +30,10 @@ services:
       - wp:/var/www/html
   nginx:
     container_name: nginx
-    build: ./requirements/nginx/
+    build: requirements/nginx
     restart: always
+    env_file:
+      - .env
     depends_on:
       - wordpress
     ports:
