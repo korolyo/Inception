@@ -13,19 +13,19 @@ services:
     build: requirements/mariadb/
     container_name: mariadb
     restart: always
-    volumes: [db-data:/var/lib/mysql]
-    ports: [3306:3306]
-    env_file: [.env]
-    networks: [wpnet]
+    volumes: [ db-data:/var/lib/mysql ]
+#    ports: [3306:3306]
+    env_file: [ .env ]
+    networks: [ wpnet ]
   wordpress:
     build: requirements/wordpress/
     container_name: wordpress
     restart: always
-    env_file: [.env]
-    depends_on: [mariadb]
-    volumes: [wp:/var/www/]
-    ports: [9000:9000]
-    networks: [wpnet]
+    env_file: [ .env ]
+    depends_on: [ mariadb ]
+    volumes: [ wp:/var/www/ ]
+#    ports: [9000:9000]
+    networks: [ wpnet ]
 
 ##################################################
 volumes:
